@@ -1,5 +1,5 @@
 {
-  "name": "margaret-fetcher",
+  "name": "@sweepbright/margaret-fetcher",
   "description": "Request classes for fetch",
   "main": "dist/index.js",
   "jsnext:main": "src/index.js",
