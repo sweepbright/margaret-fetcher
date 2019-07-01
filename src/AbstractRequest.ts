@@ -226,6 +226,8 @@ function parseBody(response: Response): Promise<object | string> {
             response.status !== 204 &&
             contentLength !== '0' &&
             contentType &&
+            // this line is Sweepbright specific, which is not cool
+            // FIXME: make this generic
             (contentType.match(
                 /^application\/vnd.sweepbright\.v[0-9]{8}\+json$/
             ) ||
