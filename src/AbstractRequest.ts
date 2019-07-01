@@ -2,6 +2,7 @@
 import merge from 'lodash/merge';
 import { URL } from './polyfills/url';
 import { buildOptions } from './Helpers';
+import { RequestError } from './errors';
 
 require('isomorphic-fetch');
 
@@ -71,7 +72,10 @@ export default class AbstractRequest {
         return promise;
     }
 
-    async fetch(path: string, fetchOptions: RequestInit) {
+    async fetch<TResult = any>(
+        path: string,
+        fetchOptions: RequestInit
+    ): Promise<TResult> {
         const url = this.buildEndpoint(path);
 
         const options = {
@@ -88,7 +92,18 @@ export default class AbstractRequest {
             await this.willSendRequest(options);
         }
 
-        return fetch(url.href, fetchOptions);
+        const response = await fetch(url.href, fetchOptions);
+        return this.didReceiveResponse<TResult>(response);
+    }
+
+    protected async didReceiveResponse<TResult = any>(
+        response: Response
+    ): Promise<TResult> {
+        if (response.ok) {
+            return (parseBody(response) as any) as Promise<TResult>;
+        } else {
+            throw await errorFromResponse(response);
+        }
     }
 
     getSubrequest(subrequest, id) {
@@ -202,4 +217,41 @@ export default class AbstractRequest {
             method: 'DELETE',
         });
     }
+}
+
+function parseBody(response: Response): Promise<object | string> {
+    const contentType = response.headers.get('Content-Type');
+    const contentLength = response.headers.get('Content-Length');
+    try {
+        if (
+            // As one might expect, a "204 No Content" is empty! This means there
+            // isn't enough to `JSON.parse`, and trying will result in an error.
+            response.status !== 204 &&
+            contentLength !== '0' &&
+            contentType &&
+            (contentType.match(
+                /^application\/vnd.sweepbright\.v[0-9]{8}\+json$/
+            ) ||
+                contentType.startsWith('application/json'))
+        ) {
+            return response.json();
+        } else {
+            return response.text();
+        }
+    } catch (err) {
+        return Promise.resolve('');
+    }
+}
+
+async function errorFromResponse(response: Response) {
+    const message = `${response.status}: ${response.statusText}`;
+
+    const body = await parseBody(response);
+
+    return new RequestError(message, {
+        url: response.url,
+        status: response.status,
+        statusText: response.statusText,
+        body,
+    });
 }
