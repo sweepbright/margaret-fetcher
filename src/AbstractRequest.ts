@@ -60,11 +60,15 @@ export default class AbstractRequest {
         return url;
     }
 
-    make(path: string, options: RequestInit = {}) {
+    make<TResult = any>(
+        path: string,
+        options: RequestInit = {}
+    ): Promise<TResult> {
         let body = merge(this.options, options);
         body = buildOptions(body);
 
-        let promise = this.fetch(path, body);
+        let promise = this.fetch<TResult>(path, body);
+
         this.middlewares.forEach(middleware => {
             promise = promise.then(middleware);
         });
@@ -180,33 +184,33 @@ export default class AbstractRequest {
         return this;
     }
 
-    get(url: string) {
-        return this.make(url, { method: 'GET' });
+    get<TResult = any>(url: string) {
+        return this.make<TResult>(url, { method: 'GET' });
     }
 
-    put(url: string, body: BodyInit) {
-        return this.make(url, {
+    put<TResult = any>(url: string, body: BodyInit) {
+        return this.make<TResult>(url, {
             method: 'PUT',
             body,
         });
     }
 
-    patch(url: string, body: BodyInit) {
-        return this.make(url, {
+    patch<TResult = any>(url: string, body: BodyInit) {
+        return this.make<TResult>(url, {
             method: 'PATCH',
             body,
         });
     }
 
-    post(url: string, body: BodyInit) {
-        return this.make(url, {
+    post<TResult = any>(url: string, body: BodyInit) {
+        return this.make<TResult>(url, {
             method: 'POST',
             body,
         });
     }
 
-    delete(url: string) {
-        return this.make(url, {
+    delete<TResult = any>(url: string) {
+        return this.make<TResult>(url, {
             method: 'DELETE',
         });
     }
