@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 var getGlobal = function() {
     // the only reliable means to get the global object is
     // `Function('return this')()`
@@ -24,3 +25,4 @@ const URLSearchParams =
         : require('url').URLSearchParams;
 
 export { URL, URLSearchParams };
+/* eslint-enable */
