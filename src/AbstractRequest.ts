@@ -120,13 +120,6 @@ export default class AbstractRequest {
         return subrequest;
     }
 
-    /**
-     * Set the default options for all requests
-     *
-     * @param {Object} options
-     *
-     * @return {AbstractRequest}
-     */
     setOptions(options) {
         this.options = options;
 
