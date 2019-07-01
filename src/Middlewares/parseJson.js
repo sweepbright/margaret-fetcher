@@ -1,5 +1,5 @@
-import {jsonParser} from '../Helpers';
-import {NO_CONTENT} from '../HttpStatusCodes';
+import { jsonParser } from '../Helpers';
+import { NO_CONTENT } from '../HttpStatusCodes';
 
 export default response => {
     // If the response is a 204, don't

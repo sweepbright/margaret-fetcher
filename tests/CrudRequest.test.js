@@ -4,11 +4,11 @@ import CrudRequest from '../src/CrudRequest';
 describe('CrudRequest', () => {
     let requests;
 
-    fetchMock.mock('http://google.com/users', 'GET', {users: ['foo']});
-    fetchMock.mock('http://google.com/users/1', 'GET', {name: 'foo'});
+    fetchMock.mock('http://google.com/users', 'GET', { users: ['foo'] });
+    fetchMock.mock('http://google.com/users/1', 'GET', { name: 'foo' });
     fetchMock.mock('http://google.com/users/1', 'DELETE', 204);
     fetchMock.mock('http://google.com/users', 'POST', (url, options) => {
-        return {users: [JSON.parse(options.body)]};
+        return { users: [JSON.parse(options.body)] };
     });
     fetchMock.mock('http://google.com/users/1', 'PUT', (url, options) => {
         return JSON.parse(options.body);
@@ -32,8 +32,8 @@ describe('CrudRequest', () => {
 
     describe('#store', () => {
         it('can store a resource', () => {
-            return requests.store({name: 'foo'}).then(response => {
-                expect(response.data.users).toEqual([{name: 'foo'}]);
+            return requests.store({ name: 'foo' }).then(response => {
+                expect(response.data.users).toEqual([{ name: 'foo' }]);
                 expect(fetchMock.calls().matched.length).toEqual(1);
             });
         });
@@ -42,7 +42,7 @@ describe('CrudRequest', () => {
     describe('#show', () => {
         it('can get a resource', () => {
             return requests.show(1).then(response => {
-                expect(response.data).toEqual({name: 'foo'});
+                expect(response.data).toEqual({ name: 'foo' });
                 expect(fetchMock.calls().matched.length).toEqual(1);
             });
         });
@@ -50,8 +50,8 @@ describe('CrudRequest', () => {
 
     describe('#update', () => {
         it('can update a resource', () => {
-            return requests.update(1, {name: 'bar'}).then(response => {
-                expect(response.data).toEqual({name: 'bar'});
+            return requests.update(1, { name: 'bar' }).then(response => {
+                expect(response.data).toEqual({ name: 'bar' });
                 expect(fetchMock.calls().matched.length).toEqual(1);
             });
         });

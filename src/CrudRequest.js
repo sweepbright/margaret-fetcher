@@ -1,7 +1,6 @@
 import JsonRequest from './JsonRequest';
 
 export default class CrudRequest extends JsonRequest {
-
     /**
      * Name of the resource
      *
@@ -62,5 +61,4 @@ export default class CrudRequest extends JsonRequest {
     destroy(id) {
         return this.delete(`${this.resource}/${id}`);
     }
-
 }

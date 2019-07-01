@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {buildQuery} from '../../src/Helpers';
+import { buildQuery } from '../../src/Helpers';
 
 describe('buildQuery', () => {
     it('can build a query', () => {
@@ -12,7 +12,7 @@ describe('buildQuery', () => {
                 baz: ['a', 'b'],
                 qux: undefined,
                 rob: [],
-            }
+            },
         });
 
         assert.equal(result, 'http://foo.com/foobar?foo=bar&baz[]=a&baz[]=b&');

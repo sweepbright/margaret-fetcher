@@ -1,13 +1,12 @@
-import {parse as parseUrl} from 'url';
+import { parse as parseUrl } from 'url';
 import merge from 'lodash/merge';
-import {buildQuery, buildOptions} from './Helpers';
+import { buildQuery, buildOptions } from './Helpers';
 
 if (typeof fetch === 'undefined') {
     require('fetch-everywhere');
 }
 
 export default class AbstractRequest {
-
     /**
      * @type {Array}
      */
@@ -47,11 +46,14 @@ export default class AbstractRequest {
      * @return {String}
      */
     buildEndpoint(resource) {
-        const {protocol, host, path} = parseUrl(this.rootUrl);
-        const pathname = protocol && host ? `${path.replace(/^\/|\/$/g, '')}/${resource}` : resource;
+        const { protocol, host, path } = parseUrl(this.rootUrl);
+        const pathname =
+            protocol && host
+                ? `${path.replace(/^\/|\/$/g, '')}/${resource}`
+                : resource;
         const query = this.query;
 
-        const built = buildQuery({protocol, host, pathname, query});
+        const built = buildQuery({ protocol, host, pathname, query });
         if (!host) {
             return `${this.rootUrl}/${built}`;
         }
@@ -88,10 +90,7 @@ export default class AbstractRequest {
      * @returns {Promise}
      */
     fetch(url, body = {}) {
-        return fetch(
-            this.buildEndpoint(url),
-            body
-        );
+        return fetch(this.buildEndpoint(url), body);
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -151,7 +150,9 @@ export default class AbstractRequest {
         return this.withOptions({
             headers: {
                 Authorization: options => {
-                    return `Bearer ${typeof token === 'function' ? token(options) : token}`;
+                    return `Bearer ${
+                        typeof token === 'function' ? token(options) : token
+                    }`;
                 },
             },
         });
@@ -235,22 +236,22 @@ export default class AbstractRequest {
     //////////////////////////////////////////////////////////////////////
 
     get(url) {
-        return this.make(url, {method: 'GET'});
+        return this.make(url, { method: 'GET' });
     }
 
     put(url, body) {
-        return this.make(url, {method: 'PUT', body});
+        return this.make(url, { method: 'PUT', body });
     }
 
     patch(url, body) {
-        return this.make(url, {method: 'PATCH', body});
+        return this.make(url, { method: 'PATCH', body });
     }
 
     post(url, body) {
-        return this.make(url, {method: 'POST', body});
+        return this.make(url, { method: 'POST', body });
     }
 
     delete(url) {
-        return this.make(url, {method: 'DELETE'});
+        return this.make(url, { method: 'DELETE' });
     }
 }

@@ -1,8 +1,7 @@
 import AbstractRequest from './AbstractRequest';
-import {parseJson} from './Middlewares';
+import { parseJson } from './Middlewares';
 
 export default class JsonRequest extends AbstractRequest {
-
     constructor(...args) {
         super(...args);
 
@@ -10,7 +9,7 @@ export default class JsonRequest extends AbstractRequest {
         this.withOptions({
             type: 'json',
             headers: {
-                'Accept': 'application/json',
+                Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
         });
@@ -40,5 +39,4 @@ export default class JsonRequest extends AbstractRequest {
             body: JSON.stringify(payload),
         });
     }
-
 }

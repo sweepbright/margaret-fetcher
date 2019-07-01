@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {buildOptions} from '../../src/Helpers';
+import { buildOptions } from '../../src/Helpers';
 
 describe('buildOptions', () => {
     it('can unwrap callable options', () => {

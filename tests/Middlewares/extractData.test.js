@@ -1,17 +1,17 @@
 import fetchMock from 'fetch-mock';
-import {parseJson, extractData} from '../../src/Middlewares';
+import { parseJson, extractData } from '../../src/Middlewares';
 
 describe('extractData', () => {
     fetchMock.reset();
-    fetchMock.mock('http://google.com/foo', {data: {foo: "bar"}});
-    fetchMock.mock('http://google.com/nodata', {foo: "bar"});
+    fetchMock.mock('http://google.com/foo', { data: { foo: 'bar' } });
+    fetchMock.mock('http://google.com/nodata', { foo: 'bar' });
 
     it('can extract data from response', () => {
         return fetch('http://google.com/foo')
             .then(parseJson)
             .then(extractData)
             .then(extracted => {
-                expect(extracted).toEqual({foo: 'bar'});
+                expect(extracted).toEqual({ foo: 'bar' });
             });
     });
 
@@ -20,7 +20,7 @@ describe('extractData', () => {
             .then(parseJson)
             .then(extractData)
             .then(extracted => {
-                expect(extracted).toEqual({foo: 'bar'});
+                expect(extracted).toEqual({ foo: 'bar' });
             });
     });
 });
