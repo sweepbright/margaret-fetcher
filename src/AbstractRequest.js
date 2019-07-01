@@ -1,6 +1,7 @@
-import { parse as parseUrl } from 'url';
+// @ts-check
 import merge from 'lodash/merge';
-import { buildQuery, buildOptions } from './Helpers';
+import { URL } from './polyfills/url';
+import { buildOptions } from './Helpers';
 
 if (typeof fetch === 'undefined') {
     require('fetch-everywhere');
@@ -29,11 +30,6 @@ export default class AbstractRequest {
     };
 
     /**
-     * @type {string}
-     */
-    rootUrl = '/api';
-
-    /**
      * Subrequests to alias under this one
      *
      * @type {Object}
@@ -46,19 +42,32 @@ export default class AbstractRequest {
      * @return {String}
      */
     buildEndpoint(resource) {
-        const { protocol, host, path } = parseUrl(this.rootUrl);
-        const pathname =
-            protocol && host
-                ? `${path.replace(/^\/|\/$/g, '')}/${resource}`
-                : resource;
-        const query = this.query;
+        let rootURL = this.rootUrl;
 
-        const built = buildQuery({ protocol, host, pathname, query });
-        if (!host) {
-            return `${this.rootUrl}/${built}`;
+        if (rootURL) {
+            rootURL = rootURL.endsWith('/') ? rootURL : rootURL.concat('/');
         }
 
-        return built;
+        let path = resource;
+        if (path.startsWith('/')) {
+            path = path.slice(1);
+        }
+
+        const url = new URL(path, rootURL);
+        // add query params
+        Object.keys(this.query).forEach(queryParam => {
+            const queryValue = this.query[queryParam];
+            if (Array.isArray(queryValue)) {
+                // add array query
+                queryValue.forEach(arrayItemValue => {
+                    url.searchParams.append(`${queryParam}[]`, arrayItemValue);
+                });
+            } else {
+                url.searchParams.append(queryParam, queryValue);
+            }
+        });
+
+        return url;
     }
 
     /**
