@@ -2,9 +2,8 @@
     "name": "@sweepbright/margaret-fetcher",
     "description": "Request classes for fetch",
     "main": "dist/index.js",
-    "jsnext:main": "src/index.js",
     "typings": "./index.d.ts",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com:madewithlove/margaret-fetcher.git"
@@ -19,21 +18,26 @@
     "license": "MIT",
     "dependencies": {
         "fetch-everywhere": "^1.0.5",
-        "lodash": "^4.15.0",
-        "url": "^0.11.0"
+        "isomorphic-fetch": "^2.2.1",
+        "lodash": "^4.15.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.4.5",
+        "@babel/plugin-proposal-class-properties": "^7.4.4",
+        "@babel/preset-env": "^7.4.5",
         "eslint": "^4.3.0",
         "eslint-config-madewithlove": "^5.1.1",
         "eslint-config-prettier": "^6.0.0",
         "fetch-mock": "^4.6.1",
         "jest": "^20.0.4",
-        "madewithlove-webpack-config": "^6.2.3",
-        "webpack": "^3.4.1",
-        "webpack-cli": "^3.3.5"
+        "rollup": "^1.16.3",
+        "rollup-plugin-babel": "^4.3.3",
+        "rollup-plugin-commonjs": "^10.0.1",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-terser": "^5.0.0"
     },
     "scripts": {
-        "build": "BABEL_ENV=production webpack --progress",
+        "build": "rollup --config",
         "prepublish": "npm run build",
         "postversion": "git push; git push --tags; npm publish",
         "lint": "eslint src",

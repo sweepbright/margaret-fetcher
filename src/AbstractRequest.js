@@ -3,9 +3,7 @@ import merge from 'lodash/merge';
 import { URL } from './polyfills/url';
 import { buildOptions } from './Helpers';
 
-if (typeof fetch === 'undefined') {
-    require('fetch-everywhere');
-}
+require('isomorphic-fetch');
 
 export default class AbstractRequest {
     /**
@@ -60,7 +58,7 @@ export default class AbstractRequest {
             if (Array.isArray(queryValue)) {
                 // add array query
                 queryValue.forEach(arrayItemValue => {
-                    url.searchParams.append(`${queryParam}[]`, arrayItemValue);
+                    url.searchParams.append(`${queryParam}`, arrayItemValue);
                 });
             } else {
                 url.searchParams.append(queryParam, queryValue);
