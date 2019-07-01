@@ -36,5 +36,11 @@
     "postversion": "git push; git push --tags; npm publish",
     "lint": "eslint src",
     "test": "jest"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": true,
+        "singleQuote": true
   }
 }
