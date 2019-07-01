@@ -27,6 +27,7 @@
         "@babel/plugin-proposal-class-properties": "^7.4.4",
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-typescript": "^7.3.3",
+        "@types/lodash": "^4.14.135",
         "eslint": "^5.16.0",
         "eslint-config-prettier": "^6.0.0",
         "fetch-mock": "^4.6.1",
