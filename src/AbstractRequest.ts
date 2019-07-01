@@ -82,10 +82,19 @@ export default class AbstractRequest {
     ): Promise<TResult> {
         const url = this.buildEndpoint(path);
 
+        // make sure headers are set
+        if (
+            !(fetchOptions.headers && fetchOptions.headers instanceof Headers)
+        ) {
+            fetchOptions.headers = new Headers(
+                fetchOptions.headers || Object.create(null)
+            );
+        }
+
         const options = {
             path: url.pathname,
             params: url.searchParams,
-            headers: fetchOptions.headers || {},
+            headers: fetchOptions.headers,
             ...(fetchOptions.body && {
                 body: fetchOptions.body.toString(),
             }),
@@ -94,6 +103,22 @@ export default class AbstractRequest {
 
         if (this.willSendRequest) {
             await this.willSendRequest(options);
+        }
+
+        // We accept arbitrary objects and arrays as body and serialize them as JSON
+        if (
+            fetchOptions.body !== undefined &&
+            fetchOptions.body !== null &&
+            (fetchOptions.body.constructor === Object ||
+                Array.isArray(fetchOptions.body) ||
+                ((fetchOptions.body as any).toJSON &&
+                    typeof (fetchOptions.body as any).toJSON === 'function'))
+        ) {
+            fetchOptions.body = JSON.stringify(fetchOptions.body);
+            // If Content-Type header has not been previously set, set to application/json
+            if (!fetchOptions.headers.get('Content-Type')) {
+                fetchOptions.headers.set('Content-Type', 'application/json');
+            }
         }
 
         const response = await fetch(url.href, fetchOptions);
