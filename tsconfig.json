@@ -4,7 +4,9 @@
         "outDir": "./dist",
         "strict": true,
         "noImplicitAny": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "emitDeclarationOnly": true,
+        "declaration": true
     },
     "include": ["src/**/*"],
     "exclude": ["**/__tests__", "**/__mocks__"]

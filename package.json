@@ -2,7 +2,7 @@
     "name": "@sweepbright/margaret-fetcher",
     "description": "Request classes for fetch",
     "main": "dist/index.js",
-    "typings": "./index.d.ts",
+    "typings": "dist/index.d.ts",
     "version": "1.2.0",
     "repository": {
         "type": "git",
@@ -32,6 +32,7 @@
         "eslint-config-prettier": "^6.0.0",
         "fetch-mock": "^4.6.1",
         "jest": "^20.0.4",
+        "rimraf": "^2.6.3",
         "rollup": "^1.16.3",
         "rollup-plugin-babel": "^4.3.3",
         "rollup-plugin-commonjs": "^10.0.1",
@@ -40,7 +41,7 @@
         "typescript": "^3.5.2"
     },
     "scripts": {
-        "build": "NODE_ENV=production rollup --config",
+        "build": "NODE_ENV=production rollup --config && npx tsc",
         "build:dev": "rollup --config",
         "prepublish": "npm run build",
         "postversion": "git push; git push --tags; npm publish",
