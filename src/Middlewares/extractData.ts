@@ -1,4 +1,4 @@
-export default response => {
+export default (response: any) => {
     if (!response.data) {
         return response;
     }
