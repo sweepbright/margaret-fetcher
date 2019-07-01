@@ -3,7 +3,7 @@
     "description": "Request classes for fetch",
     "main": "dist/index.js",
     "typings": "./index.d.ts",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com:madewithlove/margaret-fetcher.git"
@@ -37,7 +37,8 @@
         "rollup-plugin-terser": "^5.0.0"
     },
     "scripts": {
-        "build": "rollup --config",
+        "build": "NODE_ENV=production rollup --config",
+        "build:dev": "rollup --config",
         "prepublish": "npm run build",
         "postversion": "git push; git push --tags; npm publish",
         "lint": "eslint src",
