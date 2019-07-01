@@ -29,8 +29,6 @@ export default class AbstractRequest {
         method: 'GET',
     };
 
-    subrequests = {};
-
     buildEndpoint(resource: string): URL {
         let rootURL = this.rootUrl;
 
@@ -135,19 +133,8 @@ export default class AbstractRequest {
         }
     }
 
-    getSubrequest(subrequest, id) {
-        if (typeof subrequest === 'string') {
-            if (this.subrequests.hasOwnProperty(subrequest)) {
-                subrequest = this.subrequests[subrequest];
-            } else {
-                throw new Error(`No subrequest named ${subrequest} defined`);
-            }
-        }
 
-        subrequest.resource = `${this.resource}/${id}/${subrequest.resource}`;
 
-        return subrequest;
-    }
 
     setOptions(options) {
         this.options = options;
