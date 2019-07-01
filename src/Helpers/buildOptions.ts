@@ -1,6 +1,6 @@
 import mapValues from 'lodash/mapValues';
 
-export default function buildOptions(options: any) {
+export default function buildOptions(options: any): any {
     return mapValues(options, value => {
         switch (typeof value) {
             case 'function':

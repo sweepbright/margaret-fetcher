@@ -1,12 +1,15 @@
 // @ts-check
 import merge from 'lodash/merge';
 import { URL } from './polyfills/url';
-import { buildOptions } from './Helpers';
 import { RequestError } from './errors';
 
 require('isomorphic-fetch');
 
 export type Body = BodyInit | object;
+
+export type Request = RequestInit & {
+    body?: Body;
+};
 
 type RequestOptions = {
     path: string;
@@ -16,14 +19,20 @@ type RequestOptions = {
     method: string;
 };
 
+type PromiseOrValue<T> = T | Promise<T>;
+
+interface Middleware<In = any, Out = any> {
+    (res: In): PromiseOrValue<Out>;
+}
+
 export default class AbstractRequest {
-    middlewares = [];
+    middlewares: Middleware[] = [];
 
     resource?: string;
     rootUrl?: string;
     willSendRequest?: (options: RequestOptions) => Promise<void>;
 
-    query = {};
+    query: Record<string, any> = {};
 
     options: Partial<RequestInit> = {
         method: 'GET',
@@ -58,14 +67,13 @@ export default class AbstractRequest {
         return url;
     }
 
-    make<TResult = any>(
+    private make<TResult = any>(
         path: string,
-        options: RequestInit = {}
+        options: RequestInit
     ): Promise<TResult> {
-        let body = merge(this.options, options);
-        body = buildOptions(body);
+        const init: RequestInit = Object.assign(this.options, options);
 
-        let promise = this.fetch<TResult>(path, body);
+        let promise = this.fetch<TResult>(path, init);
 
         this.middlewares.forEach(middleware => {
             promise = promise.then(middleware);
@@ -133,34 +141,27 @@ export default class AbstractRequest {
         }
     }
 
-
-
-
-    setOptions(options) {
+    setOptions(options: any) {
         this.options = options;
 
         return this;
     }
 
-    withOptions(options) {
+    withOptions(options: any) {
         this.options = merge(this.options, options);
 
         return this;
     }
 
-    withBearerToken(token) {
+    withBearerToken(token: string) {
         return this.withOptions({
             headers: {
-                Authorization: options => {
-                    return `Bearer ${
-                        typeof token === 'function' ? token(options) : token
-                    }`;
-                },
+                Authorization: `Bearer ${token}`,
             },
         });
     }
 
-    setQueryParameters(parameters) {
+    setQueryParameters(parameters: Record<string, any>) {
         this.query = parameters;
 
         return this;
@@ -178,13 +179,13 @@ export default class AbstractRequest {
         return this;
     }
 
-    setMiddlewares(middlewares) {
+    setMiddlewares(middlewares: Middleware[]) {
         this.middlewares = middlewares;
 
         return this;
     }
 
-    withMiddleware(middleware) {
+    withMiddleware(middleware: Middleware) {
         this.middlewares.push(middleware);
 
         return this;
@@ -196,32 +197,60 @@ export default class AbstractRequest {
         return this;
     }
 
-    get<TResult = any>(url: string) {
-        return this.make<TResult>(url, { method: 'GET' });
-    }
-
-    put<TResult = any>(url: string, body: BodyInit) {
+    protected get<TResult = any>(url: string) {
         return this.make<TResult>(url, {
-            method: 'PUT',
-            body,
+            method: 'GET',
         });
     }
 
-    patch<TResult = any>(url: string, body: BodyInit) {
-        return this.make<TResult>(url, {
-            method: 'PATCH',
-            body,
-        });
+    protected put<TResult = any>(url: string, body?: Body, init?: RequestInit) {
+        return this.make<TResult>(
+            url,
+            Object.assign(
+                {
+                    method: 'PUT',
+                    body,
+                },
+                init
+            )
+        );
     }
 
-    post<TResult = any>(url: string, body: BodyInit) {
-        return this.make<TResult>(url, {
-            method: 'POST',
-            body,
-        });
+    protected patch<TResult = any>(
+        url: string,
+        body?: Body,
+        init?: RequestInit
+    ) {
+        return this.make<TResult>(
+            url,
+            Object.assign(
+                {
+                    method: 'PATCH',
+                    body,
+                },
+                init
+            )
+        );
     }
 
-    delete<TResult = any>(url: string) {
+    protected post<TResult = any>(
+        url: string,
+        body?: Body,
+        init?: RequestInit
+    ) {
+        return this.make<TResult>(
+            url,
+            Object.assign(
+                {
+                    method: 'POST',
+                    body,
+                },
+                init
+            )
+        );
+    }
+
+    protected delete<TResult = any>(url: string) {
         return this.make<TResult>(url, {
             method: 'DELETE',
         });
@@ -257,7 +286,7 @@ function parseBody(response: Response): Promise<object | string> {
 async function errorFromResponse(response: Response) {
     const message = `${response.status}: ${response.statusText}`;
 
-    const body = await parseBody(response);
+    const body = ((await parseBody(response)) as any) as (string | object);
 
     return new RequestError(message, {
         url: response.url,

@@ -24,7 +24,7 @@ export default class CrudRequest extends JsonRequest {
      *
      * @returns {Promise}
      */
-    store(payload) {
+    store(payload: Body) {
         return this.post(this.resource, payload);
     }
 
@@ -35,7 +35,7 @@ export default class CrudRequest extends JsonRequest {
      *
      * @returns {Promise}
      */
-    show(id) {
+    show(id: string) {
         return this.get(`${this.resource}/${id}`);
     }
 
@@ -47,7 +47,7 @@ export default class CrudRequest extends JsonRequest {
      *
      * @returns {Promise}
      */
-    update(id, payload) {
+    update(id: string, payload: Body) {
         return this.put(`${this.resource}/${id}`, payload);
     }
 
@@ -58,7 +58,7 @@ export default class CrudRequest extends JsonRequest {
      *
      * @returns {Promise}
      */
-    destroy(id) {
+    destroy(id: string) {
         return this.delete(`${this.resource}/${id}`);
     }
 }
