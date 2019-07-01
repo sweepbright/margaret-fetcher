@@ -39,7 +39,7 @@ export default class AbstractRequest {
     /**
      * @param {String} resource
      *
-     * @return {String}
+     * @return {URL}
      */
     buildEndpoint(resource) {
         let rootURL = this.rootUrl;
@@ -93,13 +93,15 @@ export default class AbstractRequest {
     /**
      * Make a raw fetch request
      *
-     * @param {String} url
+     * @param {String} path
      * @param {Object} body
      *
      * @returns {Promise}
      */
-    fetch(url, body = {}) {
-        return fetch(this.buildEndpoint(url), body);
+    fetch(path, body = {}) {
+        const url = this.buildEndpoint(path);
+
+        return fetch(url.href, body);
     }
 
     //////////////////////////////////////////////////////////////////////
