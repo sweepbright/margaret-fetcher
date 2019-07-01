@@ -259,6 +259,7 @@ export class AbstractRequest {
 function parseBody(response: Response): Promise<object | string> {
     const contentType = response.headers.get('Content-Type');
     const contentLength = response.headers.get('Content-Length');
+    debugger;
     try {
         if (
             // As one might expect, a "204 No Content" is empty! This means there
@@ -269,15 +270,18 @@ function parseBody(response: Response): Promise<object | string> {
             // this line is Sweepbright specific, which is not cool
             // FIXME: make this generic
             (contentType.match(
-                /^application\/vnd.sweepbright\.v[0-9]{8}\+json$/
+                /^application\/vnd.sweepbright\.v[0-9]+\+json$/
             ) ||
                 contentType.startsWith('application/json'))
         ) {
+            debugger;
             return response.json();
         } else {
+            debugger;
             return response.text();
         }
     } catch (err) {
+        debugger;
         return Promise.resolve('');
     }
 }
