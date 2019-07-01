@@ -96,10 +96,22 @@ export default class AbstractRequest {
      *
      * @returns {Promise}
      */
-    fetch(path, body = {}) {
+    async fetch(path, fetchOptions = {}) {
         const url = this.buildEndpoint(path);
 
-        return fetch(url.href, body);
+        const options = {
+            path: url.pathname,
+            params: url.searchParams,
+            headers: fetchOptions.headers || {},
+            ...(fetchOptions.body && { body: fetchOptions.body.toString() }),
+            method: fetchOptions.method || 'GET',
+        };
+
+        if (this.willSendRequest) {
+            await this.willSendRequest(options);
+        }
+
+        return fetch(url.href, fetchOptions);
     }
 
     //////////////////////////////////////////////////////////////////////
