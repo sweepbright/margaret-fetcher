@@ -17,7 +17,6 @@
     },
     "license": "MIT",
     "dependencies": {
-        "fetch-everywhere": "^1.0.5",
         "isomorphic-fetch": "^2.2.1",
         "lodash": "^4.15.0"
     },
@@ -25,6 +24,7 @@
         "@babel/core": "^7.4.5",
         "@babel/plugin-proposal-class-properties": "^7.4.4",
         "@babel/preset-env": "^7.4.5",
+        "@babel/preset-typescript": "^7.3.3",
         "eslint": "^4.3.0",
         "eslint-config-madewithlove": "^5.1.1",
         "eslint-config-prettier": "^6.0.0",
