@@ -5,41 +5,32 @@ import { buildOptions } from './Helpers';
 
 require('isomorphic-fetch');
 
+export type Body = BodyInit | object;
+
+type RequestOptions = {
+    path: string;
+    params: URLSearchParams;
+    headers: HeadersInit;
+    body?: Body;
+    method: string;
+};
+
 export default class AbstractRequest {
-    /**
-     * @type {Array}
-     */
     middlewares = [];
 
-    /**
-     * The default query parameters
-     *
-     * @type {Object}
-     */
+    resource?: string;
+    rootUrl?: string;
+    willSendRequest?: (options: RequestOptions) => Promise<void>;
+
     query = {};
 
-    /**
-     * The default options
-     *
-     * @type {Object}
-     */
-    options = {
+    options: Partial<RequestInit> = {
         method: 'GET',
     };
 
-    /**
-     * Subrequests to alias under this one
-     *
-     * @type {Object}
-     */
     subrequests = {};
 
-    /**
-     * @param {String} resource
-     *
-     * @return {URL}
-     */
-    buildEndpoint(resource) {
+    buildEndpoint(resource: string): URL {
         let rootURL = this.rootUrl;
 
         if (rootURL) {
@@ -68,19 +59,11 @@ export default class AbstractRequest {
         return url;
     }
 
-    /**
-     * Make a request somewhere
-     *
-     * @param {String} url
-     * @param {Object} options
-     *
-     * @returns {Promise}
-     */
-    make(url, options = {}) {
+    make(path: string, options: RequestInit = {}) {
         let body = merge(this.options, options);
         body = buildOptions(body);
 
-        let promise = this.fetch(url, body);
+        let promise = this.fetch(path, body);
         this.middlewares.forEach(middleware => {
             promise = promise.then(middleware);
         });
@@ -88,22 +71,16 @@ export default class AbstractRequest {
         return promise;
     }
 
-    /**
-     * Make a raw fetch request
-     *
-     * @param {String} path
-     * @param {Object} body
-     *
-     * @returns {Promise}
-     */
-    async fetch(path, fetchOptions = {}) {
+    async fetch(path: string, fetchOptions: RequestInit) {
         const url = this.buildEndpoint(path);
 
         const options = {
             path: url.pathname,
             params: url.searchParams,
             headers: fetchOptions.headers || {},
-            ...(fetchOptions.body && { body: fetchOptions.body.toString() }),
+            ...(fetchOptions.body && {
+                body: fetchOptions.body.toString(),
+            }),
             method: fetchOptions.method || 'GET',
         };
 
@@ -113,10 +90,6 @@ export default class AbstractRequest {
 
         return fetch(url.href, fetchOptions);
     }
-
-    //////////////////////////////////////////////////////////////////////
-    ///////////////////////////// SUBREQUESTS ////////////////////////////
-    //////////////////////////////////////////////////////////////////////
 
     getSubrequest(subrequest, id) {
         if (typeof subrequest === 'string') {
@@ -132,10 +105,6 @@ export default class AbstractRequest {
         return subrequest;
     }
 
-    //////////////////////////////////////////////////////////////////////
-    ////////////////////////////// OPTIONS ///////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-
     /**
      * Set the default options for all requests
      *
@@ -149,24 +118,12 @@ export default class AbstractRequest {
         return this;
     }
 
-    /**
-     * Merge some options to the defaults
-     *
-     * @param {Object} options
-     *
-     * @return {AbstractRequest}
-     */
     withOptions(options) {
         this.options = merge(this.options, options);
 
         return this;
     }
 
-    /**
-     * @param {String} token
-     *
-     * @return {AbstractRequest}
-     */
     withBearerToken(token) {
         return this.withOptions({
             headers: {
@@ -179,100 +136,70 @@ export default class AbstractRequest {
         });
     }
 
-    //////////////////////////////////////////////////////////////////////
-    ////////////////////////// QUERY PARAMETERS //////////////////////////
-    //////////////////////////////////////////////////////////////////////
-
-    /**
-     * @param {Object} parameters
-     *
-     * @return {AbstractRequest}
-     */
     setQueryParameters(parameters) {
         this.query = parameters;
 
         return this;
     }
 
-    /**
-     * @param {String} key
-     * @param {String} value
-     *
-     * @return {AbstractRequest}
-     */
-    withQueryParameter(key, value) {
+    withQueryParameter(key: string, value: any) {
         this.query[key] = value;
 
         return this;
     }
 
-    /**
-     * @param {Object} parameters
-     *
-     * @return {AbstractRequest}
-     */
-    withQueryParameters(parameters) {
+    withQueryParameters(parameters: [{ [key: string]: any }]) {
         this.query = merge(this.query, parameters);
 
         return this;
     }
 
-    //////////////////////////////////////////////////////////////////////
-    ///////////////////////////// MIDDLEWARES ////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-
-    /**
-     * @param {Function[]} middlewares
-     *
-     * @returns {AbstractRequest}
-     */
     setMiddlewares(middlewares) {
         this.middlewares = middlewares;
 
         return this;
     }
 
-    /**
-     * @param {Function} middleware
-     *
-     * @returns {AbstractRequest}
-     */
     withMiddleware(middleware) {
         this.middlewares.push(middleware);
 
         return this;
     }
 
-    /**
-     * @returns {AbstractRequest}
-     */
     withoutMiddlewares() {
         this.middlewares = [];
 
         return this;
     }
 
-    //////////////////////////////////////////////////////////////////////
-    ////////////////////////////// REQUESTS //////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-
-    get(url) {
+    get(url: string) {
         return this.make(url, { method: 'GET' });
     }
 
-    put(url, body) {
-        return this.make(url, { method: 'PUT', body });
+    put(url: string, body: BodyInit) {
+        return this.make(url, {
+            method: 'PUT',
+            body,
+        });
     }
 
-    patch(url, body) {
-        return this.make(url, { method: 'PATCH', body });
+    patch(url: string, body: BodyInit) {
+        return this.make(url, {
+            method: 'PATCH',
+            body,
+        });
     }
 
-    post(url, body) {
-        return this.make(url, { method: 'POST', body });
+    post(url: string, body: BodyInit) {
+        return this.make(url, {
+            method: 'POST',
+            body,
+        });
     }
 
-    delete(url) {
-        return this.make(url, { method: 'DELETE' });
+    delete(url: string) {
+        return this.make(url, {
+            method: 'DELETE',
+        });
     }
 }
