@@ -1,4 +1,4 @@
-import AbstractRequest from './AbstractRequest';
+import { AbstractRequest } from './AbstractRequest';
 
 export default class JsonRequest extends AbstractRequest {
     constructor() {

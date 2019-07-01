@@ -1,4 +1,4 @@
-export { default as AbstractRequest } from './AbstractRequest';
+export * from './AbstractRequest';
 export { default as JsonRequest } from './JsonRequest';
 export { default as CrudRequest } from './CrudRequest';
 export { RequestError } from './errors';

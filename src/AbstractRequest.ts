@@ -1,4 +1,3 @@
-// @ts-check
 import merge from 'lodash/merge';
 import { URL } from './polyfills/url';
 import { RequestError } from './errors';
@@ -11,7 +10,7 @@ export type Request = RequestInit & {
     body?: Body;
 };
 
-type RequestOptions = {
+export type RequestOptions = {
     path: string;
     params: URLSearchParams;
     headers: HeadersInit;
@@ -21,11 +20,11 @@ type RequestOptions = {
 
 type PromiseOrValue<T> = T | Promise<T>;
 
-interface Middleware<In = any, Out = any> {
+export interface Middleware<In = any, Out = any> {
     (res: In): PromiseOrValue<Out>;
 }
 
-export default class AbstractRequest {
+export class AbstractRequest {
     middlewares: Middleware[] = [];
 
     resource?: string;
