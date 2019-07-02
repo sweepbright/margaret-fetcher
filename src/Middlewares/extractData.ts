@@ -1,7 +1,7 @@
-export default (response: any) => {
-    if (!response.data) {
-        return response;
+export default (responseBody: any) => {
+    if (responseBody != null && typeof responseBody === 'object') {
+        return responseBody.data;
     }
 
-    return response.data.data ? response.data.data : response.data;
+    return responseBody;
 };
