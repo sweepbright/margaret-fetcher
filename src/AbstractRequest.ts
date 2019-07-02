@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+import * as qs from 'qs';
 import { URL } from './polyfills/url';
 import { RequestError } from './errors';
 
@@ -29,7 +30,8 @@ export class AbstractRequest {
 
     resource?: string;
     rootUrl?: string;
-    willSendRequest?: (options: RequestOptions) => Promise<void>;
+
+    protected willSendRequest?(request: RequestOptions): PromiseOrValue<void>;
 
     query: Record<string, any> = {};
 
@@ -49,23 +51,29 @@ export class AbstractRequest {
             path = path.slice(1);
         }
 
-        const url = new URL(path, rootURL);
-        // add query params
-        Object.keys(this.query).forEach(queryParam => {
-            const queryValue = this.query[queryParam];
-            if (Array.isArray(queryValue)) {
-                // add array query
-                queryValue.forEach(arrayItemValue => {
-                    url.searchParams.append(`${queryParam}`, arrayItemValue);
-                });
-            } else if (typeof queryValue === 'object') {
-                // dont add objects
-            } else {
-                url.searchParams.append(queryParam, queryValue);
-            }
-        });
+        const pathWithQuery = this.addQueryToPath(path);
+
+        const url = new URL(pathWithQuery, rootURL);
 
         return url;
+    }
+
+    addQueryToPath(path: string): string {
+        let [basePath, queryParamsString] = extractQueryParamsString(path);
+        // we need to use qs library here because the URLSearchParams class does not
+        // supports the array syntax `?a[]=1&a[]=2`. And some servers does
+        const queryParams = Object.assign(
+            qs.parse(queryParamsString),
+            this.query
+        );
+
+        const search = qs.stringify(queryParams);
+
+        if (search) {
+            return `${basePath}?${search}`;
+        }
+
+        return path;
     }
 
     private make<TResult = any>(
@@ -99,7 +107,7 @@ export class AbstractRequest {
         }
 
         const options = {
-            path: url.pathname,
+            path: url.href,
             params: url.searchParams,
             headers: fetchOptions.headers,
             ...(fetchOptions.body && {
@@ -109,6 +117,7 @@ export class AbstractRequest {
         };
 
         if (this.willSendRequest) {
+            // this could potentially change the options
             await this.willSendRequest(options);
         }
 
@@ -296,4 +305,16 @@ async function errorFromResponse(response: Response) {
         statusText: response.statusText,
         body,
     });
+}
+
+function extractQueryParamsString(path: string): [string, string] {
+    const queryPrefixIndex = path.indexOf('?');
+    if (queryPrefixIndex >= 0) {
+        return [
+            path.slice(0, queryPrefixIndex - 1),
+            path.slice(queryPrefixIndex),
+        ];
+    }
+
+    return [path, ''];
 }
