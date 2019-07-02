@@ -58,6 +58,8 @@ export class AbstractRequest {
                 queryValue.forEach(arrayItemValue => {
                     url.searchParams.append(`${queryParam}`, arrayItemValue);
                 });
+            } else if (typeof queryValue === 'object') {
+                // dont add objects
             } else {
                 url.searchParams.append(queryParam, queryValue);
             }
