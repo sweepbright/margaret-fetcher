@@ -8,7 +8,6 @@ export default class JsonRequest extends AbstractRequest {
             type: 'json',
             headers: {
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
             },
         });
     }
