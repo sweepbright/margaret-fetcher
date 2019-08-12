@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.3.7
+### Fixed
+- Fixed a bug where the `willSendRequest` request lifecycle hook could mutate the options parameter
+
 ## 0.10.0
 ### Fixed
 - Fixed issue when using `margaret-fetcher` with `react-native`
