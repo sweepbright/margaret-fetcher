@@ -1,5 +1,5 @@
-import merge from 'lodash/merge';
 import * as qs from 'qs';
+import merge from 'lodash/merge';
 import { URL } from './polyfills/url';
 import { RequestError } from './errors';
 
@@ -80,9 +80,7 @@ export class AbstractRequest {
         path: string,
         options: RequestInit
     ): Promise<TResult> {
-        const init: RequestInit = Object.assign(this.options, options);
-
-        let promise = this.fetch<TResult>(path, init);
+        let promise = this.fetch<TResult>(path, options);
 
         this.middlewares.forEach(middleware => {
             promise = promise.then(middleware);
@@ -93,9 +91,20 @@ export class AbstractRequest {
 
     async fetch<TResult = any>(
         path: string,
-        fetchOptions: RequestInit
+        options: RequestInit
     ): Promise<TResult> {
         const url = this.buildEndpoint(path);
+
+        let fetchOptions: RequestInit = merge({}, this.options, options);
+
+        // this can modify the `this.options`
+        if (this.willSendRequest) {
+            // this could potentially change the options
+            await this.willSendRequest(fetchOptions as RequestOptions);
+            // merge the new possible mutated values for the options back in
+            // this will mutate fetchOptions
+            merge(fetchOptions, this.options);
+        }
 
         // make sure headers are set
         if (
@@ -104,21 +113,6 @@ export class AbstractRequest {
             fetchOptions.headers = new Headers(
                 fetchOptions.headers || Object.create(null)
             );
-        }
-
-        const options = {
-            path: url.href,
-            params: url.searchParams,
-            headers: fetchOptions.headers,
-            ...(fetchOptions.body && {
-                body: fetchOptions.body.toString(),
-            }),
-            method: fetchOptions.method || 'GET',
-        };
-
-        if (this.willSendRequest) {
-            // this could potentially change the options
-            await this.willSendRequest(options);
         }
 
         // We accept arbitrary objects and arrays as body and serialize them as JSON
@@ -184,7 +178,7 @@ export class AbstractRequest {
     }
 
     withQueryParameters(parameters: [{ [key: string]: any }]) {
-        this.query = merge(this.query, parameters);
+        this.query = merge({}, this.query, parameters);
 
         return this;
     }
