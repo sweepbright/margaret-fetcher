@@ -31,7 +31,7 @@ export class AbstractRequest {
     resource?: string;
     rootUrl?: string;
 
-    protected willSendRequest?(request: RequestOptions): PromiseOrValue<void>;
+    protected willSendRequest?(path: string): PromiseOrValue<void>;
 
     query: Record<string, any> = {};
 
@@ -95,43 +95,42 @@ export class AbstractRequest {
     ): Promise<TResult> {
         const url = this.buildEndpoint(path);
 
-        let fetchOptions: RequestInit = merge({}, this.options, options);
+        merge(this.options, options);
 
         // this can modify the `this.options`
         if (this.willSendRequest) {
             // this could potentially change the options
-            await this.willSendRequest(fetchOptions as RequestOptions);
+            await this.willSendRequest(path);
             // merge the new possible mutated values for the options back in
             // this will mutate fetchOptions
-            merge(fetchOptions, this.options);
         }
 
         // make sure headers are set
         if (
-            !(fetchOptions.headers && fetchOptions.headers instanceof Headers)
+            !(this.options.headers && this.options.headers instanceof Headers)
         ) {
-            fetchOptions.headers = new Headers(
-                fetchOptions.headers || Object.create(null)
+            this.options.headers = new Headers(
+                this.options.headers || Object.create(null)
             );
         }
 
         // We accept arbitrary objects and arrays as body and serialize them as JSON
         if (
-            fetchOptions.body !== undefined &&
-            fetchOptions.body !== null &&
-            (fetchOptions.body.constructor === Object ||
-                Array.isArray(fetchOptions.body) ||
-                ((fetchOptions.body as any).toJSON &&
-                    typeof (fetchOptions.body as any).toJSON === 'function'))
+            this.options.body !== undefined &&
+            this.options.body !== null &&
+            (this.options.body.constructor === Object ||
+                Array.isArray(this.options.body) ||
+                ((this.options.body as any).toJSON &&
+                    typeof (this.options.body as any).toJSON === 'function'))
         ) {
-            fetchOptions.body = JSON.stringify(fetchOptions.body);
+            this.options.body = JSON.stringify(this.options.body);
             // If Content-Type header has not been previously set, set to application/json
-            if (!fetchOptions.headers.get('Content-Type')) {
-                fetchOptions.headers.set('Content-Type', 'application/json');
+            if (!this.options.headers.get('Content-Type')) {
+                this.options.headers.set('Content-Type', 'application/json');
             }
         }
 
-        const response = await fetch(url.href, fetchOptions);
+        const response = await fetch(url.href, this.options);
         return this.didReceiveResponse<TResult>(response);
     }
 
