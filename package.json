@@ -3,7 +3,7 @@
     "description": "Request classes for fetch",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com:madewithlove/margaret-fetcher.git"

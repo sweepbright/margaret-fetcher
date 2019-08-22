@@ -5,7 +5,7 @@ import { RequestError } from './errors';
 
 require('isomorphic-fetch');
 
-export type Body = BodyInit | object;
+export type Body = BodyInit | object | null;
 
 export type Request = RequestInit & {
     body?: Body;
@@ -130,12 +130,27 @@ export class AbstractRequest {
             }
         }
 
-        const response = await fetch(url.href, this.options);
-        return this.didReceiveResponse<TResult>(response);
+        const performRequest = async () => {
+            const request = new Request(String(url.href), this.options);
+            try {
+                const response = await fetch(request);
+
+                return await this.didReceiveResponse(response, request);
+            } catch (error) {
+                this.didEncounterError(error, request);
+            }
+        };
+
+        return performRequest();
+    }
+
+    protected didEncounterError(error: Error, _request: Request) {
+        throw error;
     }
 
     protected async didReceiveResponse<TResult = any>(
-        response: Response
+        response: Response,
+        request: Request
     ): Promise<TResult> {
         if (response.ok) {
             return (parseBody(response) as any) as Promise<TResult>;
