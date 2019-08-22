@@ -100,7 +100,7 @@ export class AbstractRequest {
         // this can modify the `this.options`
         if (this.willSendRequest) {
             // this could potentially change the options
-            await this.willSendRequest(path);
+            await this.willSendRequest(url.href);
             // merge the new possible mutated values for the options back in
             // this will mutate fetchOptions
         }
