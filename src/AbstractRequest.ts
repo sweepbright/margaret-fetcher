@@ -1,5 +1,6 @@
 import * as qs from 'qs';
 import merge from 'lodash/merge';
+import mergeWith from 'lodash/mergeWith';
 import { URL } from './polyfills/url';
 import { RequestError } from './errors';
 
@@ -166,7 +167,21 @@ export class AbstractRequest {
     }
 
     withOptions(options: any) {
-        this.options = merge(this.options, options);
+        this.options = mergeWith(
+            this.options,
+            options,
+            (objValue, srcValue) => {
+                if (objValue instanceof Headers) {
+                    Object.keys(srcValue).forEach(header => {
+                        objValue.set(header, srcValue[header]);
+                    });
+                    return objValue;
+                }
+
+                // let the method handler it
+                return undefined;
+            }
+        );
 
         return this;
     }
