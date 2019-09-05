@@ -3,7 +3,7 @@
     "description": "Request classes for fetch",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com:madewithlove/margaret-fetcher.git"
@@ -22,14 +22,14 @@
         "qs": "^6.7.0"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^1.11.0",
-        "@typescript-eslint/parser": "^1.11.0",
         "@babel/core": "^7.4.5",
         "@babel/plugin-proposal-class-properties": "^7.4.4",
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-typescript": "^7.3.3",
         "@types/lodash": "^4.14.135",
         "@types/qs": "^6.5.3",
+        "@typescript-eslint/eslint-plugin": "^1.11.0",
+        "@typescript-eslint/parser": "^1.11.0",
         "eslint": "^5.16.0",
         "eslint-config-prettier": "^6.0.0",
         "fetch-mock": "^4.6.1",
