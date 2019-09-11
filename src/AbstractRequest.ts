@@ -206,7 +206,7 @@ export class AbstractRequest {
         return this;
     }
 
-    withQueryParameters(parameters: [{ [key: string]: any }]) {
+    withQueryParameters(parameters: { [key: string]: any }) {
         this.query = merge({}, this.query, parameters);
 
         return this;
