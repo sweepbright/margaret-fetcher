@@ -1,5 +1,4 @@
 import { parse, stringify } from 'qs';
-import { Cache } from 'memory-cache';
 import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import { URL } from './polyfills/url';
