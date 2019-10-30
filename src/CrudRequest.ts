@@ -1,64 +1,25 @@
 import JsonRequest from './JsonRequest';
 
 export default class CrudRequest extends JsonRequest {
-    /**
-     * Name of the resource
-     *
-     * @type {string}
-     */
-    resource = 'users';
+    resource!: string;
 
-    /**
-     * Display all items for this resource
-     *
-     * @returns {Promise}
-     */
-    index() {
-        return this.get(this.resource);
+    index<TResult = any>() {
+        return this.get<TResult>(this.resource);
     }
 
-    /**
-     * Store a new resource
-     *
-     * @param {Object} payload
-     *
-     * @returns {Promise}
-     */
     store(payload: Body) {
         return this.post(this.resource, payload);
     }
 
-    /**
-     * Show a resource
-     *
-     * @param {Number} id
-     *
-     * @returns {Promise}
-     */
-    show(id: string) {
-        return this.get(`${this.resource}/${id}`);
+    show<TResult = any>(id: string) {
+        return this.get<TResult>(`${this.resource}/${id}`);
     }
 
-    /**
-     * Update a resource
-     *
-     * @param {Number} id
-     * @param {Object} payload
-     *
-     * @returns {Promise}
-     */
-    update(id: string, payload: Body) {
-        return this.put(`${this.resource}/${id}`, payload);
+    update<TResult = any>(id: string, payload: Body) {
+        return this.put<TResult>(`${this.resource}/${id}`, payload);
     }
 
-    /**
-     * Delete a resource
-     *
-     * @param {Number} id
-     *
-     * @returns {Promise}
-     */
-    destroy(id: string) {
-        return this.delete(`${this.resource}/${id}`);
+    destroy<TResult = any>(id: string) {
+        return this.delete<TResult>(`${this.resource}/${id}`);
     }
 }

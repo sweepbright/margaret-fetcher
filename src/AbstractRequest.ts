@@ -1,16 +1,11 @@
-import * as qs from 'qs';
+import { parse, stringify } from 'qs';
+import { Cache } from 'memory-cache';
 import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import { URL } from './polyfills/url';
 import { RequestError } from './errors';
 
 require('isomorphic-fetch');
-
-export type Body = BodyInit | object | null;
-
-export type Request = RequestInit & {
-    body?: Body;
-};
 
 export type RequestOptions = {
     path: string;
@@ -28,9 +23,18 @@ export interface Middleware<In = any, Out = any> {
 
 export class AbstractRequest {
     middlewares: Middleware[] = [];
-
+    memoizedResults = new Map<string, Promise<any>>();
     resource?: string;
     rootUrl?: string;
+
+    // By default, we use the full request URL as the cache key.
+    // You can override this to remove query parameters or compute a cache key in any way that makes sense.
+    // For example, you could use this to take Vary header fields into account.
+    // Although we do validate header fields and don't serve responses from cache when they don't match,
+    // new reponses overwrite old ones with different vary header fields.
+    protected cacheKeyFor(request: Request): string {
+        return request.url;
+    }
 
     protected willSendRequest?(path: string): PromiseOrValue<void>;
 
@@ -63,12 +67,9 @@ export class AbstractRequest {
         let [basePath, queryParamsString] = extractQueryParamsString(path);
         // we need to use qs library here because the URLSearchParams class does not
         // supports the array syntax `?a[]=1&a[]=2`. And some servers does
-        const queryParams = Object.assign(
-            qs.parse(queryParamsString),
-            this.query
-        );
+        const queryParams = Object.assign(parse(queryParamsString), this.query);
 
-        const search = qs.stringify(queryParams);
+        const search = stringify(queryParams);
 
         if (search) {
             return `${basePath}?${search}`;
@@ -131,18 +132,29 @@ export class AbstractRequest {
             }
         }
 
-        const performRequest = async () => {
-            const request = new Request(String(url.href), this.options);
-            try {
-                const response = await fetch(request);
+        const request = new Request(String(url.href), this.options);
+        const cacheKey = this.cacheKeyFor(request);
 
+        const performRequest = async () => {
+            try {
+                const response: Response = await fetch(request);
                 return await this.didReceiveResponse(response, request);
             } catch (error) {
                 this.didEncounterError(error, request);
             }
         };
 
-        return performRequest();
+        if (request.method === 'GET') {
+            let promise = this.memoizedResults.get(cacheKey);
+            if (promise) return promise;
+
+            promise = performRequest();
+            this.memoizedResults.set(cacheKey, promise);
+            return promise;
+        } else {
+            this.memoizedResults.delete(cacheKey);
+            return performRequest();
+        }
     }
 
     protected didEncounterError(error: Error, _request: Request) {
