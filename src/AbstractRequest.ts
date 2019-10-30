@@ -35,6 +35,11 @@ export class AbstractRequest {
         return request.url;
     }
 
+    // allow to force a cache clear
+    clearCache() {
+        this.memoizedResults.clear();
+    }
+
     protected willSendRequest?(path: string): PromiseOrValue<void>;
 
     query: Record<string, any> = {};
